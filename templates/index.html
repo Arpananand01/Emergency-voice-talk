@@ -36,7 +36,8 @@
                 <div class="lang-select-box">
                     <span class="lang-icon">🌐</span>
                     <select id="language-select" class="lang-dropdown">
-                        <option value="en-IN" selected>English</option>
+                        <option value="auto" selected>✨ Auto-Detect Language</option>
+                        <option value="en-IN">English</option>
                         <option value="hi-IN">हिन्दी</option>
                         <option value="bn-IN">বাংলা</option>
                         <option value="mr-IN">मराठी</option>
@@ -106,7 +107,15 @@
                     <label for="transcript-box" class="transcript-title">Patient Voice Transcript:</label>
                     <span id="live-indicator" class="live-indicator hidden">● RECORDING</span>
                 </div>
-                <div id="transcript-box" class="transcript-box" contenteditable="true" data-placeholder="Patient speech will be transcribed here..."></div>
+                <div id="transcript-box" class="transcript-box" contenteditable="true" data-placeholder="Patient speech will be transcribed here in spoken language..."></div>
+
+                <!-- Real-time English Translation Card (for exported transcript preview) -->
+                <div id="translation-card" class="translation-card hidden">
+                    <div class="translation-header">
+                        <span class="translation-badge">🌐 ENGLISH EXPORT TRANSCRIPT</span>
+                    </div>
+                    <div id="translation-box" class="translation-box" contenteditable="true"></div>
+                </div>
             </section>
 
         </main>

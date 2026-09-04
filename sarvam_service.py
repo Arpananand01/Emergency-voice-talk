@@ -49,6 +49,7 @@ LANGUAGES = {
 
 SARVAM_STT_URL = "https://api.sarvam.ai/speech-to-text"
 SARVAM_TTS_URL = "https://api.sarvam.ai/text-to-speech"
+SARVAM_TRANSLATE_URL = "https://api.sarvam.ai/translate"
 
 
 def get_sarvam_api_key():
@@ -116,17 +117,18 @@ def generate_tts_greeting(language_code: str):
         return False, "Voice service is temporarily unavailable. Please check your network connection.", greeting_text
 
 
-def transcribe_audio(audio_bytes: bytes, filename: str, language_code: str = "hi-IN", content_type: str = "audio/webm"):
+def transcribe_audio(audio_bytes: bytes, filename: str, language_code: str = "auto", content_type: str = "audio/webm"):
     """
     Calls Sarvam Speech-to-Text API to convert patient audio to text.
-    Returns tuple: (success: bool, transcript_or_error_message: str)
+    Automatically detects spoken language if language_code is 'auto', 'unknown', or empty.
+    Returns tuple: (success: bool, transcript_or_error_message: str, detected_language_code: str)
     """
     api_key = get_sarvam_api_key()
     if not api_key:
-        return False, "Sarvam API key is not configured in environment (.env)."
+        return False, "Sarvam API key is not configured in environment (.env).", language_code or "hi-IN"
 
     if not audio_bytes or len(audio_bytes) == 0:
-        return False, "Empty audio file received. Please speak clearly into the microphone."
+        return False, "Empty audio file received. Please speak clearly into the microphone.", language_code or "hi-IN"
 
     headers = {
         "api-subscription-key": api_key
@@ -145,8 +147,13 @@ def transcribe_audio(audio_bytes: bytes, filename: str, language_code: str = "hi
         "mode": "transcribe"
     }
 
-    if language_code and language_code in LANGUAGES:
+    # If language_code is auto/unknown or empty, pass "unknown" so Sarvam STT auto-detects language
+    if not language_code or language_code.lower() in ["auto", "unknown"]:
+        data["language_code"] = "unknown"
+    elif language_code in LANGUAGES:
         data["language_code"] = language_code
+    else:
+        data["language_code"] = "unknown"
 
     try:
         response = requests.post(SARVAM_STT_URL, headers=headers, files=files, data=data, timeout=30)
@@ -154,26 +161,76 @@ def transcribe_audio(audio_bytes: bytes, filename: str, language_code: str = "hi
         if response.status_code == 200:
             res_json = response.json()
             transcript = res_json.get("transcript", "").strip()
+            detected_lang = res_json.get("language_code") or (language_code if language_code != "auto" else "hi-IN")
             
             if not transcript:
-                return False, "Sorry, I couldn't understand your response. Please speak again."
+                return False, "Sorry, I couldn't understand your response. Please speak again.", detected_lang
             
-            return True, transcript
+            return True, transcript, detected_lang
         else:
             logger.error(f"Sarvam STT API Error [{response.status_code}]: {response.text}")
-            # If saaras:v4 endpoint returns format error, try fallback without language_code or saaras:v3
+            # If saaras:v4 endpoint returns format error, try fallback with saaras:v3
             if response.status_code == 400 or response.status_code == 422:
-                # Retry with saaras:v3 model fallback
                 data["model"] = "saaras:v3"
                 retry_resp = requests.post(SARVAM_STT_URL, headers=headers, files={"file": (filename or "audio.webm", audio_bytes, content_type or "audio/webm")}, data=data, timeout=30)
                 if retry_resp.status_code == 200:
                     retry_json = retry_resp.json()
                     retry_transcript = retry_json.get("transcript", "").strip()
+                    retry_lang = retry_json.get("language_code") or (language_code if language_code != "auto" else "hi-IN")
                     if retry_transcript:
-                        return True, retry_transcript
+                        return True, retry_transcript, retry_lang
             
-            return False, "Sorry, speech recognition failed. Please try speaking again."
+            return False, "Sorry, speech recognition failed. Please try speaking again.", language_code or "hi-IN"
 
     except requests.exceptions.RequestException as e:
         logger.error(f"Sarvam STT network error: {e}")
-        return False, "Voice service is temporarily unavailable. Please try again."
+        return False, "Voice service is temporarily unavailable. Please try again.", language_code or "hi-IN"
+
+
+def translate_text(text: str, source_language_code: str = "hi-IN", target_language_code: str = "en-IN"):
+    """
+    Translates transcript from source language into target language (default English en-IN)
+    using Sarvam AI Translation API.
+    Returns: translated text string (or original text as fallback on failure/same lang).
+    """
+    if not text or not text.strip():
+        return ""
+
+    text = text.strip()
+
+    # If source language is already English, no translation needed
+    if source_language_code and source_language_code.lower().startswith("en"):
+        return text
+
+    api_key = get_sarvam_api_key()
+    if not api_key:
+        logger.warning("Sarvam API key missing during translation request. Returning original text.")
+        return text
+
+    headers = {
+        "api-subscription-key": api_key,
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "input": text,
+        "source_language_code": source_language_code,
+        "target_language_code": target_language_code,
+        "model": "mayura:v1"
+    }
+
+    try:
+        response = requests.post(SARVAM_TRANSLATE_URL, headers=headers, json=payload, timeout=15)
+        if response.status_code == 200:
+            res_json = response.json()
+            translated = res_json.get("translated_text", "").strip()
+            if translated:
+                logger.info(f"Successfully translated text [{source_language_code} -> {target_language_code}]")
+                return translated
+        else:
+            logger.error(f"Sarvam Translate API Error [{response.status_code}]: {response.text}")
+    except Exception as e:
+        logger.error(f"Sarvam Translate network error: {e}")
+
+    # Fallback to original text if translation fails
+    return text

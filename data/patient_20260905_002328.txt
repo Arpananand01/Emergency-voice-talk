@@ -1,0 +1,12 @@
+==================================================
+      EMERGENCY MEDICAL INTAKE TRANSCRIPT          
+==================================================
+Timestamp          : 2026-09-05T00:23:28.981237
+Spoken Language    : Hindi (hi-IN)
+--------------------------------------------------
+EXPORT TRANSCRIPT (ENGLISH):
+I've been feeling a headache coming on.
+--------------------------------------------------
+PATIENT SPOKEN TRANSCRIPT (HINDI):
+मुझे सिरदर्द हो रहा है।
+==================================================

@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusText = document.getElementById('status-text');
     const subStatus = document.getElementById('sub-status');
     const transcriptBox = document.getElementById('transcript-box');
+    const translationCard = document.getElementById('translation-card');
+    const translationBox = document.getElementById('translation-box');
     const liveIndicator = document.getElementById('live-indicator');
     const notificationBox = document.getElementById('notification-box');
 
@@ -24,6 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Language Definitions & Localized Greetings ---
     const LANGUAGES = {
+        'auto': {
+            name: 'Auto-Detect',
+            nativeName: '✨ Auto-Detect',
+            greeting: 'How can I help you?'
+        },
         'en-IN': {
             name: 'English',
             nativeName: 'English',
@@ -73,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentSavedJson = null;
     let currentSavedTxt = null;
+    let currentEnglishTranscript = '';
 
     const SILENCE_TIMEOUT_MS = 3200; // ~3 seconds timeout for initial voice input
     const POST_SPEECH_SILENCE_TIMEOUT_MS = 5000; // 5 seconds gap auto-save after patient speaks
@@ -427,10 +435,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok && data.status === 'success' && data.transcript) {
                 const recognizedText = data.transcript.trim();
+                const englishText = (data.transcript_english || recognizedText).trim();
+                const detectedCode = data.detected_language_code || data.language_code || selectedLangKey;
+                const detectedLangConfig = LANGUAGES[detectedCode] || LANGUAGES['en-IN'];
+
+                // Automatically update dropdown UI to the patient's spoken language!
+                if (detectedCode && detectedCode !== 'auto' && langSelect.querySelector(`option[value="${detectedCode}"]`)) {
+                    langSelect.value = detectedCode;
+                }
+
+                // 1. Display patient's spoken language in main transcript box on screen
                 transcriptBox.innerText = recognizedText;
                 
-                // Automatically save transcript locally
-                await saveTranscriptToServer(recognizedText, langConfig.name, selectedLangKey);
+                // 2. Display real-time English export preview card
+                if (translationCard && translationBox) {
+                    translationBox.innerText = englishText;
+                    translationCard.classList.remove('hidden');
+                }
+
+                currentEnglishTranscript = englishText;
+                
+                // 3. Automatically save transcript locally (English for export, original retained)
+                await saveTranscriptToServer(recognizedText, englishText, detectedLangConfig.name, detectedCode);
             } else {
                 const errorMsg = data.message || "Sorry, I couldn't understand your response. Please speak again.";
                 updateStatus('idle', 'Recognition Failed', errorMsg);
@@ -446,8 +472,11 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Saves transcript JSON and TXT records to local server
      */
-    async function saveTranscriptToServer(transcriptText, languageName, languageCode) {
-        if (!transcriptText || !transcriptText.trim()) {
+    async function saveTranscriptToServer(transcriptOriginalText, transcriptEnglishText, languageName, languageCode) {
+        const spokenText = (transcriptOriginalText || transcriptBox.innerText || '').trim();
+        const engText = (transcriptEnglishText || (translationBox ? translationBox.innerText : '') || spokenText).trim();
+
+        if (!spokenText && !engText) {
             showNotification('Empty transcript cannot be saved.', 'error');
             return;
         }
@@ -459,7 +488,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    transcript: transcriptText,
+                    transcript: spokenText,
+                    transcript_english: engText,
                     language: languageName,
                     language_code: languageCode
                 })
@@ -542,6 +572,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // Start new voice interaction flow
             transcriptBox.innerText = '';
+            if (translationBox) translationBox.innerText = '';
+            if (translationCard) translationCard.classList.add('hidden');
             micContainer.classList.remove('saved');
             savedFilesList.classList.add('hidden');
             startRecordingFlow();
@@ -572,8 +604,11 @@ document.addEventListener('DOMContentLoaded', () => {
     btnStartAgain.addEventListener('click', () => {
         stopAllVoiceProcesses();
         transcriptBox.innerText = '';
+        if (translationBox) translationBox.innerText = '';
+        if (translationCard) translationCard.classList.add('hidden');
         currentSavedJson = null;
         currentSavedTxt = null;
+        currentEnglishTranscript = '';
         btnDownloadJson.disabled = true;
         btnDownloadTxt.disabled = true;
         savedFilesList.classList.add('hidden');

@@ -546,6 +546,52 @@ html, body {
     font-style: italic;
 }
 
+/* English Translation Preview Card */
+.translation-card {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.translation-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.translation-badge {
+    font-size: 11px;
+    font-weight: 800;
+    color: #15803d;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.translation-box {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--text-primary);
+    max-height: 120px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    outline: none;
+}
+
+.translation-box:focus {
+    border-color: #16a34a;
+    box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.15);
+}
+
 /* ==========================================================================
    Footer Safety Bar
    ========================================================================== */

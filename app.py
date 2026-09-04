@@ -96,25 +96,39 @@ def transcribe_audio_endpoint():
 
         logger.info(f"Transcribing audio [lang={language_code}, size={len(audio_bytes)} bytes]")
 
-        success, result = sarvam_service.transcribe_audio(
+        stt_res = sarvam_service.transcribe_audio(
             audio_bytes=audio_bytes,
             filename=filename,
             language_code=language_code,
             content_type=content_type
         )
 
+        if isinstance(stt_res, tuple) and len(stt_res) == 3:
+            success, result, detected_language_code = stt_res
+        else:
+            success, result = stt_res[0], stt_res[1]
+            detected_language_code = language_code
+
         if success:
-            logger.info("Speech recognition succeeded.")
+            logger.info(f"Speech recognition succeeded [detected_lang={detected_language_code}]. Translating to English for export...")
+            transcript_english = sarvam_service.translate_text(
+                text=result,
+                source_language_code=detected_language_code,
+                target_language_code="en-IN"
+            )
             return jsonify({
                 'status': 'success',
                 'transcript': result,
-                'language_code': language_code
+                'transcript_english': transcript_english,
+                'language_code': detected_language_code,
+                'detected_language_code': detected_language_code
             }), 200
         else:
             logger.warning(f"Speech recognition returned error: {result}")
             return jsonify({
                 'status': 'error',
-                'message': result
+                'message': result,
+                'detected_language_code': detected_language_code
             }), 400
 
     except Exception as e:
@@ -130,18 +144,24 @@ def save_transcript():
     """
     Receives transcript and metadata from client,
     saves as timestamped JSON and plain text files in data/ directory.
+    JSON and TXT exports store the transcript in English while retaining original spoken text metadata.
     """
     try:
         data = request.get_json() or {}
-        transcript = data.get('transcript', '').strip()
+        transcript_original = data.get('transcript', '').strip()
+        transcript_english = data.get('transcript_english', '').strip()
         language = data.get('language', 'Hindi')
         language_code = data.get('language_code', 'hi-IN')
         
-        if not transcript:
+        if not transcript_original and not transcript_english:
             return jsonify({
                 'status': 'error',
                 'message': 'Empty transcript cannot be saved.'
             }), 400
+
+        # Fallback: if transcript_english not provided, translate original text to English
+        if not transcript_english:
+            transcript_english = sarvam_service.translate_text(transcript_original, language_code, "en-IN")
 
         # Generate unique timestamp-based filename
         now = datetime.now()
@@ -161,12 +181,13 @@ def save_transcript():
 
         iso_timestamp = now.isoformat()
 
-        # JSON record structure according to requirements specification
+        # JSON record structure: Export transcript in English with original spoken text metadata
         record = {
             "timestamp": iso_timestamp,
             "language_code": language_code,
             "language": language,
-            "transcript": transcript
+            "transcript": transcript_english,
+            "transcript_original": transcript_original
         }
 
         # Write JSON file
@@ -178,11 +199,14 @@ def save_transcript():
             f_txt.write("==================================================\n")
             f_txt.write("      EMERGENCY MEDICAL INTAKE TRANSCRIPT          \n")
             f_txt.write("==================================================\n")
-            f_txt.write(f"Timestamp    : {iso_timestamp}\n")
-            f_txt.write(f"Language     : {language} ({language_code})\n")
+            f_txt.write(f"Timestamp          : {iso_timestamp}\n")
+            f_txt.write(f"Spoken Language    : {language} ({language_code})\n")
             f_txt.write("--------------------------------------------------\n")
-            f_txt.write("TRANSCRIPT:\n")
-            f_txt.write(f"{transcript}\n")
+            f_txt.write("EXPORT TRANSCRIPT (ENGLISH):\n")
+            f_txt.write(f"{transcript_english}\n")
+            f_txt.write("--------------------------------------------------\n")
+            f_txt.write(f"PATIENT SPOKEN TRANSCRIPT ({language.upper()}):\n")
+            f_txt.write(f"{transcript_original}\n")
             f_txt.write("==================================================\n")
 
         logger.info(f"Saved transcript to {base_filename}.json")
