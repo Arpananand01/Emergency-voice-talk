@@ -1,0 +1,597 @@
+/* ==========================================================================
+   MediKiosk - Emergency Case Voice Intake Theme & 80%/20% Grid Layout
+   Palette: Dark Teal (#00796b / #004d40), Soft Teal (#e0f2f1), Warm Light Gray (#f3f4f6)
+   ========================================================================== */
+
+:root {
+    --bg-main: #f3f4f6;
+    --card-bg: #ffffff;
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-muted: #6b7280;
+    --border-color: #e5e7eb;
+    
+    /* MediKiosk Brand Teal Colors (Extracted from Logo) */
+    --teal-primary: #00796b;
+    --teal-dark: #004d40;
+    --teal-hover: #00695c;
+    --teal-light: #e0f2f1;
+    --teal-border: #80cbc4;
+    
+    /* Status & Emergency Colors */
+    --emergency-red: #dc2626;
+    --emergency-red-light: #fef2f2;
+    --warning-orange: #d97706;
+    --warning-orange-light: #fffbeb;
+    --success-green: #16a34a;
+    --success-green-light: #f0fdf4;
+    
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+}
+
+/* Reset & Single Viewport Layout */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden; /* Strict no vertical scroll */
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.app-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 12px 16px;
+    gap: 10px;
+    max-width: 1480px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Header Bar with Logo & Action Buttons
+   ========================================================================== */
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    padding: 10px 18px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+/* MediKiosk Logo & Branding */
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--teal-primary), var(--teal-dark));
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 121, 107, 0.35);
+    flex-shrink: 0;
+}
+
+.brand-text-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.brand-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-name {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--teal-dark);
+    letter-spacing: -0.4px;
+    line-height: 1;
+}
+
+.brand-badge {
+    background-color: var(--teal-light);
+    color: var(--teal-primary);
+    border: 1.5px solid var(--teal-border);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    padding: 2px 10px;
+    text-transform: uppercase;
+    line-height: 1.2;
+}
+
+.brand-subtext {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+/* Header Controls & Action Buttons */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.lang-select-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-main);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.lang-icon {
+    font-size: 16px;
+}
+
+.lang-dropdown {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background-color: #ffffff;
+    color: var(--text-primary);
+    outline: none;
+    cursor: pointer;
+}
+
+.lang-dropdown:focus {
+    border-color: var(--teal-primary);
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn-primary {
+    background-color: var(--teal-primary);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: var(--teal-hover);
+    box-shadow: 0 4px 12px rgba(0, 121, 107, 0.3);
+}
+
+.btn-secondary {
+    background-color: #f3f4f6;
+    color: var(--text-primary);
+    border: 1.5px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: #e5e7eb;
+    border-color: #d1d5db;
+}
+
+.btn-outline {
+    background-color: #ffffff;
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.btn-outline:hover:not(:disabled) {
+    border-color: var(--teal-primary);
+    color: var(--teal-primary);
+    background-color: var(--teal-light);
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+/* Large Button Style for Voice Panel Controls */
+.btn-lg {
+    padding: 14px 28px;
+    font-size: 17px;
+    font-weight: 800;
+    border-radius: 12px;
+    min-height: 52px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btn-recording-active {
+    background-color: var(--emergency-red) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4);
+    animation: btnPulse 1.5s infinite alternate;
+}
+
+@keyframes btnPulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.03); }
+}
+
+.export-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-main);
+    padding: 3px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+/* ==========================================================================
+   Main Body Grid Layout (80% Voice Box Area / 20% Transcript Area)
+   ========================================================================== */
+.app-body {
+    flex: 1;
+    min-height: 0; /* Flex overflow fix */
+    display: grid;
+    grid-template-columns: 78% 21%; /* 80% Voice Box Area / 20% Transcript Sidebar */
+    gap: 12px;
+}
+
+/* ==========================================================================
+   LEFT PANEL: Voice Box (80% Area) - Emergency Case Intake Console
+   ========================================================================== */
+.voice-panel {
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    padding: 20px 24px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+.voice-panel-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #f3f4f6;
+    padding-bottom: 10px;
+}
+
+.emergency-case-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--emergency-red-light);
+    color: var(--emergency-red);
+    border: 1.5px solid #fecaca;
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.8px;
+}
+
+.emergency-pulse-dot {
+    width: 12px;
+    height: 12px;
+    background-color: var(--emergency-red);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(220, 38, 38, 0.8);
+    animation: pulseBlink 1.2s infinite;
+}
+
+@keyframes pulseBlink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.panel-sub-tag {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--teal-primary);
+    background-color: var(--teal-light);
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--teal-border);
+    letter-spacing: 0.5px;
+}
+
+/* Big Central Microphone Container for 80% Area */
+.mic-container {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    outline: none;
+    margin: 8px 0;
+}
+
+.pulse-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: var(--teal-primary);
+    opacity: 0.15;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.mic-container.listening .pulse-ring {
+    animation: micPulse 1.8s infinite ease-out;
+    background-color: var(--emergency-red);
+}
+
+@keyframes micPulse {
+    0% { transform: scale(1); opacity: 0.5; }
+    100% { transform: scale(1.6); opacity: 0; }
+}
+
+.mic-icon-box {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background-color: var(--teal-primary);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(0, 121, 107, 0.35);
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.mic-container.listening .mic-icon-box {
+    background-color: var(--emergency-red);
+    box-shadow: 0 8px 28px rgba(220, 38, 38, 0.45);
+    transform: scale(1.05);
+}
+
+.mic-container.speaking .mic-icon-box {
+    background-color: var(--warning-orange);
+    box-shadow: 0 8px 24px rgba(217, 119, 6, 0.35);
+}
+
+.mic-container.saved .mic-icon-box {
+    background-color: var(--success-green);
+    box-shadow: 0 8px 24px rgba(22, 163, 74, 0.35);
+}
+
+.status-badge {
+    padding: 8px 22px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-idle { background-color: #f3f4f6; color: var(--text-secondary); }
+.status-speaking { background-color: var(--warning-orange-light); color: var(--warning-orange); border: 1px solid #fde68a; }
+.status-listening { background-color: var(--emergency-red-light); color: var(--emergency-red); border: 1px solid #fecaca; }
+.status-saving { background-color: var(--teal-light); color: var(--teal-primary); border: 1px solid var(--teal-border); }
+.status-success { background-color: var(--success-green-light); color: var(--success-green); border: 1px solid #bbf7d0; }
+
+.sub-status {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+/* Voice Control Buttons Row Below Mic Symbol */
+.voice-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 10px 0;
+    width: 100%;
+}
+
+.saved-files-list {
+    background-color: var(--success-green-light);
+    border: 1px solid #bbf7d0;
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #15803d;
+    text-align: left;
+    width: 100%;
+    max-width: 520px;
+}
+
+.saved-files-list a {
+    color: #15803d;
+    font-weight: 700;
+}
+
+.notification-box {
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    width: 100%;
+    max-width: 520px;
+}
+
+.notification-box.error { background-color: var(--emergency-red-light); color: var(--emergency-red); border: 1px solid #fecaca; }
+.notification-box.success { background-color: var(--success-green-light); color: var(--success-green); border: 1px solid #bbf7d0; }
+
+/* ==========================================================================
+   RIGHT PANEL: Patient Voice Transcript Box (20% Area Sidebar)
+   ========================================================================== */
+.transcript-panel {
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0; /* Flex overflow fix */
+}
+
+.transcript-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.transcript-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.live-indicator {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--emergency-red);
+    letter-spacing: 0.5px;
+    animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.transcript-box {
+    flex: 1;
+    min-height: 0; /* Scroll internally inside box if long text */
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border-color);
+    background-color: #fafafa;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    outline: none;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    transition: border-color 0.2s;
+}
+
+.transcript-box:focus {
+    border-color: var(--teal-primary);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(0, 121, 107, 0.12);
+}
+
+.transcript-box:empty:before {
+    content: attr(data-placeholder);
+    color: #9ca3af;
+    font-style: italic;
+}
+
+/* ==========================================================================
+   Footer Safety Bar
+   ========================================================================== */
+.app-footer {
+    flex-shrink: 0;
+}
+
+.safety-strip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--teal-light);
+    border: 1px solid var(--teal-border);
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--teal-dark);
+}
+
+.safety-icon {
+    font-size: 16px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Responsive adjustments for mobile screens */
+@media (max-width: 768px) {
+    html, body {
+        height: auto;
+        overflow: auto;
+    }
+    .app-layout {
+        height: auto;
+    }
+    .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    .app-body {
+        grid-template-columns: 1fr;
+    }
+}

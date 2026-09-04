@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediKiosk - Emergency Talk Intake System</title>
+    <!-- Modern clean typography matching MediKiosk logo theme -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-layout">
+        
+        <!-- Header Bar with MediKiosk Logo & Emergency Talk Badge -->
+        <header class="app-header">
+            <div class="header-brand">
+                <div class="logo-box">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.78-8.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        <path d="M3.5 12h4l2-4 3 8 2-5 2 3h4" stroke-width="1.8"></path>
+                    </svg>
+                </div>
+                <div class="brand-text-container">
+                    <div class="brand-title-row">
+                        <span class="brand-name">MediKiosk</span>
+                        <span class="brand-badge">EMERGENCY TALK</span>
+                    </div>
+                    <span class="brand-subtext">Clinical Intake &amp; OPD Queue System</span>
+                </div>
+            </div>
+
+            <!-- Header Right Controls (Language & Export Options) -->
+            <div class="header-actions">
+                <div class="lang-select-box">
+                    <span class="lang-icon">🌐</span>
+                    <select id="language-select" class="lang-dropdown">
+                        <option value="en-IN" selected>English</option>
+                        <option value="hi-IN">हिन्दी</option>
+                        <option value="bn-IN">বাংলা</option>
+                        <option value="mr-IN">मराठी</option>
+                        <option value="ta-IN">தமிழ்</option>
+                        <option value="te-IN">తెలుగు</option>
+                    </select>
+                </div>
+
+                <div class="export-group">
+                    <button id="btn-download-json" class="btn btn-outline btn-sm" disabled title="Download JSON">JSON</button>
+                    <button id="btn-download-txt" class="btn btn-outline btn-sm" disabled title="Download TXT">TXT</button>
+                    <button id="btn-download-all" class="btn btn-outline btn-sm" title="Export All ZIP">ZIP</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Body: Voice Box (80% Width) + Transcript Box (20% Width) -->
+        <main class="app-body">
+            
+            <!-- Left Side: Voice Box (80% Area) - Emergency Case Intake Console -->
+            <section class="left-panel voice-panel">
+                <div class="voice-panel-header">
+                    <div class="emergency-case-tag">
+                        <span class="emergency-pulse-dot"></span>
+                        <span class="emergency-case-title">EMERGENCY CASE INTAKE</span>
+                    </div>
+                    <span class="panel-sub-tag">LIVE VOICE CONSOLE</span>
+                </div>
+
+                <div id="mic-container" class="mic-container" role="button" aria-label="Microphone Control" tabindex="0">
+                    <div id="pulse-ring" class="pulse-ring"></div>
+                    <div id="mic-icon-box" class="mic-icon-box">
+                        <svg id="mic-svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                    </div>
+                </div>
+
+                <div id="status-badge" class="status-badge status-idle">
+                    <span id="status-text">Ready to Record</span>
+                </div>
+                <div id="sub-status" class="sub-status">Click mic or "Start Recording" to speak.</div>
+
+                <!-- Main Action Buttons Located Below Mic Symbol -->
+                <div class="voice-controls-row">
+                    <button id="btn-toggle-rec" class="btn btn-primary btn-rec btn-lg">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                        <span id="toggle-rec-text">Start Recording</span>
+                    </button>
+
+                    <button id="btn-start-again" class="btn btn-secondary btn-lg">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                        <span>Clear</span>
+                    </button>
+                </div>
+
+                <div id="notification-box" class="notification-box hidden"></div>
+                <div id="saved-files-list" class="saved-files-list hidden"></div>
+            </section>
+
+            <!-- Right Side: Patient Voice Transcript Box (20% Area) -->
+            <section class="right-panel transcript-panel">
+                <div class="transcript-header-row">
+                    <label for="transcript-box" class="transcript-title">Patient Voice Transcript:</label>
+                    <span id="live-indicator" class="live-indicator hidden">● RECORDING</span>
+                </div>
+                <div id="transcript-box" class="transcript-box" contenteditable="true" data-placeholder="Patient speech will be transcribed here..."></div>
+            </section>
+
+        </main>
+
+        <!-- Footer Notice -->
+        <footer class="app-footer">
+            <div class="safety-strip">
+                <span class="safety-icon">🛡️</span>
+                <span><strong>MediKiosk Emergency Intake:</strong> Speech transcribed via Sarvam AI &amp; stored locally. Does not provide medical diagnosis or treatment advice.</span>
+            </div>
+        </footer>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
